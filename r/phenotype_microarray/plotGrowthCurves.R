@@ -1,9 +1,9 @@
 library("ggplot2")
 library("reshape2")
 
-setwd("~/Jason/stress_test/0819_ph_stress/results/newresults/")
+setwd("~/Jason/stress_test/090513/results/newresults")
 data <- read.table("allcurves.txt", header=T, sep="\t", check.names=F)
-data <- data[, c(1,2,8:ncol(data))]
+data <- data[, c(1,2,4:ncol(data))]
 
 meltData <- melt(data, id.vars=c("clone", "well"), variable.name="time", value.name="optical_density")
 meltData$well <- factor(meltData$well, levels=c("A1", "A2", "A3", "A4", "A5", "A6", "A7", "A8", "A9", "A10", "A11", "A12",
@@ -40,7 +40,7 @@ pl + geom_line() + facet_wrap(~well, ncol=12) + coord_trans(y="log2") +
 				panel.border=element_rect(colour="gray90", fill=NA),
 				axis.title.y=element_text(face="bold", angle=0), legend.key=element_rect(fill="white"),
 				plot.title=element_text(face="bold")) + 
-	ggtitle("Median Curves") + xlab("Time (hours)") + ylab("OD600nm") + scale_x_continuous(breaks=c(2.0, 10.0, 20.0, 30.0)) +
+	ggtitle("Median Curves") + xlab("Time (hours)") + ylab("OD600nm") + scale_x_continuous(breaks=c(0.5, 10.0, 20.0, 30.0)) +
 	scale_colour_manual(values=c("#0072B2", "#D55E00", "limegreen", "black"))
 
  

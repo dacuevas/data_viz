@@ -2,8 +2,8 @@ library("ggplot2")
 library("reshape2")
 
 # Read in data
-setwd("~/Projects/modeling/manuscript_07-23/")
-data <- read.table("function_distribution_0703.txt", sep="\t", header=T, check.names=F)
+setwd("~/Dropbox/Work/vdm_project/20131017/")
+data <- read.table("function_distribution_out.txt", sep="\t", header=T, check.names=F)
 
 # Reorder data
 substrateTab <- table(subset(data, category == "Expected Growth", select = substrate))
