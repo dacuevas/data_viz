@@ -51,14 +51,17 @@ p2 + geom_bar() +
 				axis.text.y=element_text(colour="black", family="Arial")) +
 	ggtitle("Loss of Function") + xlab("") + ylab("")
 
-aa <- subset(data, substrate == "Acetic Acid")
+aa <- subset(data, substrate == "D-Serine")
 aa <- droplevels(aa)
-ggplot(aa, aes(x=clone, y=harmonic_mean)) + geom_point() + scale_y_continuous(limits=c(0, 1)) +
+ggplot(aa, aes(x=clone, y=harmonic_mean)) + geom_point() + #scale_y_continuous(limits=c(0, 1)) +
 	theme(panel.background=element_blank(), axis.text.x=element_text(angle=90, colour="black"), 
 				panel.grid.minor=element_blank(), panel.grid.major=element_blank()) +
 	geom_hline(aes(yintercept=0.5)) + geom_hline(aes(yintercept=(mean(aa$harmonic_mean))), colour="grey", linetype="dashed") +
 	geom_hline(aes(yintercept=(mean(aa$harmonic_mean) + 2*sd(aa$harmonic_mean))), colour="green", linetype="dashed") +
-	geom_hline(aes(yintercept=(mean(aa$harmonic_mean) - 2*sd(aa$harmonic_mean))), colour="red", linetype="dashed")
+	geom_hline(aes(yintercept=(mean(aa$harmonic_mean) - 2*sd(aa$harmonic_mean))), colour="green", linetype="dashed") +
+    geom_hline(aes(yintercept=(mean(aa$harmonic_mean) + 3*sd(aa$harmonic_mean))), colour="red", linetype="dashed") +
+    geom_hline(aes(yintercept=(mean(aa$harmonic_mean) - 3*sd(aa$harmonic_mean))), colour="red", linetype="dashed") +
+    ggtitle("D-Serine")
 
 dglu <- subset(data, substrate == "D-Glucose")
 dglu <- droplevels(dglu)
