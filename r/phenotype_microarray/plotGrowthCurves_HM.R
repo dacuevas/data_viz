@@ -6,7 +6,7 @@ library("plyr")
 setwd("~/Dropbox/Work/vdm_project/hm_investigation/")
 dataHMs <- read.table("hmbins.txt", header=T, sep="\t", check.names=F)
 
-dataODs <- read.table("../edtcurves_logistic.txt", header=T, sep="\t", check.names=F)
+dataODs <- read.table("mediancurves.txt", header=T, sep="\t", check.names=F)
 dataODs <- dataODs[dataODs$clone == "EDT2440" & dataODs$main_source == "Carbon", c(-4)]
 
 mergeData <- merge(dataHMs, dataODs, by=c("clone","substrate"))
@@ -32,6 +32,7 @@ pl + geom_line() + coord_trans(y="log2") +
 				axis.title.y=element_text(face="bold", angle=0), legend.key=element_rect(fill="white"),
 				plot.title=element_text(face="bold")) + 
 	ggtitle("EDT2440") + xlab("Time (hours)") + ylab(expression(paste("OD",600[nm], sep=""))) + scale_x_continuous(breaks=c(0.5, 10.0, 20.0, 30.0)) +
+    scale_y_continuous(breaks=c(0.1,0.2,0.4,0.8)) +
 	#scale_colour_manual(values=c("#0072B2", "#D55E00", "limegreen", "turquoise2", "black", "violetred"))
 	#scale_colour_discrete()
     #scale_colour_brewer(palette="YlOrRd")
@@ -45,6 +46,8 @@ dataC <- read.table("carbon_classifications.txt", header=T, sep="\t", check.name
 mergeData2 <- merge(dataC, dataG, by=c("clone","growthcondition"))
 names(mergeData2)[names(mergeData2) == "harmonicmean"] <- c("HM")
 names(mergeData2)[names(mergeData2) == "maximumgrowthrate"] <- c("growth_rate")
-mergeData2 <- subset(mergeData2, clone != "EDT2420" & growthcondition != "Potassium Sorbate")
+#mergeData2 <- subset(mergeData2, clone != "EDT2420" & growthcondition != "Potassium Sorbate")
 HMpl <- ggplot(mergeData2, aes(x=HM, y=growth_rate))
 HMpl + geom_point()
+
+clones2plot <- subset(mergeData2, HM < 0.5 & growth_rate > 0.2 & growth_rate <= 0.3, select=c(clone, growthcondition, growth_rate, HM))
