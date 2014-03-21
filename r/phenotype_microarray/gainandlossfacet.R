@@ -1,9 +1,10 @@
 library("ggplot2")
 library("reshape2")
+library("plyr")
 
 # Read in data
-setwd("~/Projects/modeling/manuscript_07-23/")
-data <- read.table("function_distribution_0703.txt", sep="\t", header=T, check.names=F)
+setwd("~/Dropbox/Work/vdm_project/20140124_filtered/")
+data <- read.table("curveinfo_filtered.txt", sep="\t", header=T, check.names=F)
 
 gofdata <- subset(data, category == "Gain of Function")
 lofdata <- subset(data, category == "Loss of Function")
@@ -63,14 +64,18 @@ ggplot(aa, aes(x=clone, y=harmonic_mean)) + geom_point() + #scale_y_continuous(l
     geom_hline(aes(yintercept=(mean(aa$harmonic_mean) - 3*sd(aa$harmonic_mean))), colour="red", linetype="dashed") +
     ggtitle("D-Serine")
 
-dglu <- subset(data, substrate == "D-Glucose")
+dglu <- subset(data, growthcondition == "D-Galactose")
 dglu <- droplevels(dglu)
-ggplot(dglu, aes(x=clone, y=harmonic_mean)) + geom_point() + scale_y_continuous(limits=c(0, 2)) +
-	theme(panel.background=element_blank(), axis.text.x=element_text(angle=90, colour="black"), 
+ggplot(dglu, aes(x=sample, y=growthlevel, group=growthcondition)) + geom_point() + geom_line(alpha=0) + scale_y_continuous(limits=c(0.2, 1.2)) +
+	geom_ribbon(colour="Blue",alpha=0.1,linetype="dashed",aes(ymin=max(c((mean(dglu$growthlevel) - 2*sd(dglu$growthlevel)),0)), ymax=(mean(dglu$growthlevel) + 2*sd(dglu$growthlevel)))) +
+	theme(panel.background=element_blank(), axis.text.x=element_text(angle=90, colour="black", size=8),
+				axis.text.y=element_text(colour="black", size=8), axis.title=element_text(face="bold", size=12),
 				panel.grid.minor=element_blank(), panel.grid.major=element_blank()) +
-	geom_hline(aes(yintercept=0.5)) + geom_hline(aes(yintercept=(mean(dglu$harmonic_mean))), colour="grey", linetype="dashed") +
-	geom_hline(aes(yintercept=(mean(dglu$harmonic_mean) + 2*sd(dglu$harmonic_mean))), colour="green", linetype="dashed") +
-	geom_hline(aes(yintercept=(mean(dglu$harmonic_mean) - 2*sd(dglu$harmonic_mean))), colour="red", linetype="dashed")
+	geom_hline(aes(yintercept=0.4),size=1) + geom_hline(aes(yintercept=(mean(dglu$growthlevel))), colour="Blue", linetype="dashed") +
+	ggtitle("D-Galactose")
+	#geom_ribbon(alpha=0.3,aes(ymin=mean(dglu$growthlevel) - 2*sd(dglu$growthlevel), ymax=mean(dglu$growthlevel) + 2*sd(dglu$growthlevel)))
+	#geom_hline(aes(yintercept=(mean(dglu$harmonic_mean) + 2*sd(dglu$harmonic_mean))), colour="green", linetype="dashed") +
+	#geom_hline(aes(yintercept=(mean(dglu$harmonic_mean) - 2*sd(dglu$harmonic_mean))), colour="red", linetype="dashed")
 
 xylitol <- subset(data, substrate == "Xylitol")
 xylitol <- droplevels(xylitol)
