@@ -1,16 +1,18 @@
 library("ggplot2")
 library("reshape2")
+library("grid")
+library("plyr")
 
 # Read in raw growth curves
 setwd("~/Dropbox/Work/vdm_project/20140124_filtered/")
 data <- read.table("median_curves_filtered.txt", sep="\t", header=T, check.names=F)
 #data <- data[data$clone != "median", c(1,3:ncol(data))]
-data <- subset(data, growthcondition == "D-Galactose")
+data <- subset(data, growthcondition == "D-Mannose" | growthcondition == "D-Galactose" | growthcondition == "Sucrose")
 
 
 # Read in harmonic mean data for sorting
 hmdata <- read.table("curveinfo_filtered.txt", sep="\t", header=T, check.names=F)
-hmdata <- subset(hmdata, growthcondition == "D-Galactose")
+hmdata <- subset(hmdata, growthcondition == "D-Mannose" | growthcondition == "D-Galactose" | growthcondition == "Sucrose")
 #hmdata <- subset(hmdata, growthcondition == "D-Fructose")
 
 # Combine the datasets
@@ -24,6 +26,8 @@ alldata$sample <- reorder(alldata$sample, alldata$growthlevel, FUN=mean)
 #meltedData <- melt(alldata, id.vars=c("clone", "harmonicmean"), variable.name="time", value.name="optical_density")
 meltedData <- melt(alldata, id.vars=c("sample", "mainsource", "growthcondition", "well", "growthlevel"), variable.name="time", value.name="optical_density")
 meltedData <- subset(meltedData, time != "0.0")
+meltedData$growthcondition <- revalue(meltedData$growthcondition, c("D-Galactose"="D-galactose","D-Mannose"="D-mannose"))
+meltedData$growthcondition<- factor(meltedData$growthcondition, levels=c("Sucrose","D-galactose","D-mannose"))
 
 # Pick out which clones to put at the top of the grahpic
 #lvls <- levels(alldata$clone)
@@ -33,16 +37,23 @@ meltedData <- subset(meltedData, time != "0.0")
 
 # Plot out heatmap
 pl <- ggplot(meltedData, aes(x=time, y=sample, fill=optical_density))
-
-#pl + geom_raster() + scale_fill_gradientn(colours=c("black","#FFFF00")) +
-pl + geom_raster() + scale_fill_gradientn(colours=c("black","white", "dodgerblue4")) + 
-#pl + geom_raster() + scale_fill_gradientn(colours=c("darkred","yellow", "darkgreen")) + 
-#pl + geom_raster() + scale_fill_gradientn(colours=c("darkred", "orange", "yellow", "darkgreen")) + 
-#pl + geom_raster() + scale_fill_gradientn(colours=c("firebrick", "orange", "yellow", "darkgreen")) + 
-#pl + geom_raster() + scale_fill_gradientn(colours=c("goldenrod", "darkred")) + 
-#pl + geom_raster() + scale_fill_gradientn(colours=c("moccasin", "darkred")) + 
-#pl + geom_raster() + scale_fill_gradientn(colours=c("grey97", "black")) + 
-	theme(axis.text.x=element_text(angle=90, colour="Black", hjust=1, vjust=0.5), 
-				axis.text.y=element_text(colour="Black"), axis.title.y=element_text(face="bold"), 
-				panel.background=element_blank(), panel.grid.minor=element_blank()) + 
-	ggtitle("D-Galactose") + xlab("Time (hr)") + ylab("")
+pl + geom_raster() + facet_wrap(~growthcondition) +
+  scale_fill_gradientn(name="OD 600 nm", colours=c("black","white", "dodgerblue4"), limits=c(0, 1)) + 
+  scale_x_discrete(breaks=c("1.0", "10.0", "20.0", "30.0")) +
+	theme(axis.text.x=element_text(colour="Black"), 
+    axis.text.x=element_text(colour="Black", size=8),
+  	axis.text.y=element_blank(),
+    axis.title=element_text(face="bold", size=10),
+    axis.ticks.y=element_blank(),
+    axis.ticks.x=element_line(colour="Black"),
+		panel.background=element_blank(),
+    panel.grid.minor=element_blank(),
+		panel.border=element_rect(colour="grey30", fill=NA),
+    legend.title=element_text(size=10),
+		legend.key.size=unit(.5,"cm"),
+    legend.text=element_text(size=8),
+    strip.background=element_rect(colour="grey30", fill="White"),
+    strip.text=element_text(face="bold"),
+    plot.title=element_text(face="bold", size=12)
+  ) +
+	ggtitle("") + xlab("Time (hr)") + ylab("Clones")
