@@ -5,26 +5,32 @@ library("scales")
 library("reshape2")
 
 
-dataNames <- c("ED2")
-dir <- "~/Dropbox/Work/diversestrains/pmfiles/vibrio_december/"
-medianFile <- "results_18Jun2014/median_curves_18Jun2014.txt"
-rawFile <- "results_18Jun2014/raw_curves_18Jun2014.txt"
-logisticFile <- "results_18Jun2014/logistic_curves_18Jun2014.txt"
-saveImg <- F
+dataNames <- c("EDT2235","EDT2236","EDT2239","EDT2325","EDT2326","EDT2327","EDT2328","EDT2405","EDT2427","EDT2440","EDT2441")
+dir <- "~/Google Drive/work/collabs/Savannah/2014Aug14/"
+medianFile <- "results/median_curves_PM3B_2014Aug14.txt"
+rawFile <- "results/raw_curves_PM3B_2014Aug14.txt"
+logisticFile <- "results/logistic_curves_PM3B_2014Aug14.txt"
+saveImg <- T
+timeOffset <- 0
 
 # setwd() changes the current working directory
 # Example below changes mine to where the data is stored
 setwd(dir)
 
-# Read in data as a tablxt
+# Read in data as a table
 # header=T : there is a header line
 # sep="\t" : values are tab separated
 # check.names=F : header names will be taken as is. There usually is a problem
 #                 when numbers are part of the header
 data <- read.table(medianFile, header=T, sep="\t", check.names=F)
-title <- "Median"
+data$type <- "Median"
+data2 <- read.table(logisticFile, header=T, sep="\t", check.names=F)
+data2$type <- "Logistic"
+
 # Stretch out the table so each row is a specific sample, well, time, and optical density value
-meltData <- melt(data, id.vars=c("sample", "mainsource", "substrate", "well"), variable.name="time", value.name="optical_density")
+meltData <- melt(data, id.vars=c("sample", "mainsource", "substrate", "well", "type"), variable.name="time", value.name="optical_density")
+meltData2 <- melt(data2, id.vars=c("sample", "mainsource", "substrate", "well", "type"), variable.name="time", value.name="optical_density")
+meltData <- rbind(meltData, meltData2)
 
 meltData$well <- factor(meltData$well, levels=c("A1", "A2", "A3", "A4", "A5", "A6", "A7", "A8", "A9", "A10", "A11", "A12",
                                                 "B1", "B2", "B3", "B4", "B5", "B6", "B7", "B8", "B9", "B10", "B11", "B12",
@@ -39,42 +45,17 @@ meltData$sample <- factor(meltData$sample, levels=dataNames)
 
 # Change the time value from character string to numeric values. This causes a problem when trying to plot
 meltData$time <- as.numeric(as.character(meltData$time))
+meltData$time <- meltData$time + timeOffset
 meltData$optical_density[meltData$optical_density == 0] <- NA
 meltData$optical_density[meltData$optical_density > 2] <- NA
 
-# Create the plot using time in the x axis, optical density in the y axis,
-# and grouping/coloring the values by Virus type
-pl <- ggplot(meltData, aes(x=time, y=optical_density, colour=sample))
-
-# Here are several aesthetic changes to the graphs
-# They include creating a line graph, a point graph, facetting based on substrate type, log2 transformation,
-# and other aesthetic changes to the graph with colors, removing grid lines, labelling, etc.
-pl + geom_line(alpha=0.80) + geom_point(size=1) + facet_wrap(~well + substrate, ncol=12) +
-  coord_trans(y="log2") +
-  theme(axis.text.x=element_text(angle=90, hjust=1, vjust=0.5, colour="black"),
-        panel.background=element_blank(),
-        axis.text.y=element_text(colour="black"),
-        panel.grid.minor=element_blank(),
-        panel.grid.major=element_blank(),
-        panel.border=element_rect(colour="grey90", fill=NA),
-        axis.title.y=element_text(face="bold"),
-        legend.key=element_rect(fill="white"),
-        plot.title=element_text(face="bold")
-    ) + 
-    ggtitle(title) + xlab("Time (hr)") + ylab("OD600 nm") +
-		scale_colour_manual(values=c("#0072B2", "#D55E00", "limegreen", "black"))
-
-if( saveImg ) {
-  ggsave(paste(title,".png", sep=""), width=33.87, height=25.40, units="cm", dpi=450)
-}
-
 # Individual replicate plots from raw curves
-data <- read.table(rawFile, header=T, sep="\t", check.names=F)
+dataRaw <- read.table(rawFile, header=T, sep="\t", check.names=F)
 
 # Stretch out the table so each row is a specific sample, well, time, and optical density value
-meltData <- melt(data, id.vars=c("sample", "mainsource", "substrate", "well"), variable.name="time", value.name="optical_density")
+meltDataRaw <- melt(dataRaw, id.vars=c("sample", "mainsource", "substrate", "well"), variable.name="time", value.name="optical_density")
 
-meltData$well <- factor(meltData$well, levels=c("A1", "A2", "A3", "A4", "A5", "A6", "A7", "A8", "A9", "A10", "A11", "A12",
+meltDataRaw$well <- factor(meltDataRaw$well, levels=c("A1", "A2", "A3", "A4", "A5", "A6", "A7", "A8", "A9", "A10", "A11", "A12",
                                                 "B1", "B2", "B3", "B4", "B5", "B6", "B7", "B8", "B9", "B10", "B11", "B12",
                                                 "C1", "C2", "C3", "C4", "C5", "C6", "C7", "C8", "C9", "C10", "C11", "C12",
                                                 "D1", "D2", "D3", "D4", "D5", "D6", "D7", "D8", "D9", "D10", "D11", "D12",
@@ -85,16 +66,47 @@ meltData$well <- factor(meltData$well, levels=c("A1", "A2", "A3", "A4", "A5", "A
 
 
 # Change the time value from character string to numeric values. This causes a problem when trying to plot
-meltData$time <- as.numeric(as.character(meltData$time))
-meltData$optical_density[meltData$optical_density == 0] <- NA
-meltData$optical_density[meltData$optical_density > 2] <- NA
+meltDataRaw$time <- as.numeric(as.character(meltDataRaw$time))
+meltDataRaw$time <- meltDataRaw$time + timeOffset
+meltDataRaw$optical_density[meltDataRaw$optical_density == 0] <- NA
+meltDataRaw$optical_density[meltDataRaw$optical_density > 2] <- NA
 
 # Create all figures
 for (sampleName in dataNames) {
   title <- sampleName
+  logTitle <- paste(sampleName,"(Median and Logistic)", sep="\n")
   meltDataTemp <- meltData[grep(title, meltData$sample),]
+  meltDataRawTemp <- meltDataRaw[grep(title, meltDataRaw$sample),]
+
   
-  pl <- ggplot(meltDataTemp, aes(x=time, y=optical_density, colour=sample))
+  # Create the plot using time in the x axis, optical density in the y axis,
+  # and grouping/coloring the values by Virus type
+  pl <- ggplot(meltDataTemp, aes(x=time, y=optical_density, colour=type))
+  
+  # Here are several aesthetic changes to the graphs
+  # They include creating a line graph, a point graph, facetting based on substrate type, log2 transformation,
+  # and other aesthetic changes to the graph with colors, removing grid lines, labelling, etc.
+  pl + geom_line(alpha=0.80) + geom_point(size=1) + facet_wrap(~well + substrate, ncol=12) +
+    coord_trans(y="log2") +
+    theme(axis.text.x=element_text(angle=90, hjust=1, vjust=0.5, colour="black"),
+          panel.background=element_blank(),
+          axis.text=element_text(colour="black"),
+          axis.title=element_text(face="bold"),
+          panel.grid.minor=element_blank(),
+          panel.grid.major=element_blank(),
+          panel.border=element_rect(colour="grey90", fill=NA),
+          legend.key=element_rect(fill="white"),
+          plot.title=element_text(face="bold")
+      ) + 
+      ggtitle(logTitle) + xlab("Time (hr)") + ylab("OD600 nm") +
+    	scale_colour_manual(values=c("#0072B2", "#D55E00", "limegreen", "black"))
+  
+  if( saveImg ) {
+    ggsave(paste(title,"medandlog.png", sep="_"), width=33.87, height=25.40, units="cm", dpi=450)
+  }
+  
+  
+  pl <- ggplot(meltDataRawTemp, aes(x=time, y=optical_density, colour=sample))
   pl + geom_line(alpha=0.80) + geom_point(size=1) + facet_wrap(~well + substrate, ncol=12) +
     coord_trans(y="log2") +
     theme(axis.text.x=element_text(angle=90, hjust=1, vjust=0.5, colour="black"),
@@ -109,7 +121,7 @@ for (sampleName in dataNames) {
           plot.title=element_text(face="bold")
       ) + 
       ggtitle(title) + xlab("Time (hr)") + ylab("OD600 nm") +
-    	scale_colour_manual(values=c("#0072B2", "#D55E00", "limegreen", "black"))
+      scale_colour_manual(values=c("#0072B2", "#D55E00", "limegreen", "black"))
   
   if( saveImg ) {
     ggsave(paste(title,".png", sep=""), width=33.87, height=25.40, units="cm", dpi=450)
