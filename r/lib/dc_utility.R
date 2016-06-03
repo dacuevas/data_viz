@@ -2,9 +2,7 @@
 # A compilation of utility functions, themes, etc.
 # Author: Daniel A. Cuevas
 # Last updated: 03 June 2016
-suppressMessages(require("ggplot2"))
-suppressMessages(require("scales"))
-suppressMessages(require("ggthemes"))
+source("~/Projects/data_viz/r/lib/dc_libs.R")
 
 # My color map using tableau colors
 # http://tableaufriction.blogspot.com/2012/11/finally-you-can-use-tableau-data-colors.html
