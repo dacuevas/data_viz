@@ -1,10 +1,36 @@
 # dc_utility.R
 # A compilation of utility functions, themes, etc.
 # Author: Daniel A. Cuevas
-# Last updated: 02 June 2016
+# Last updated: 03 June 2016
+suppressMessages(require("ggplot2"))
+suppressMessages(require("scales"))
+suppressMessages(require("ggthemes"))
 
-facets.theme <- theme(axis.text=element_text(colour="black", size=12),
-                      axis.text.x=element_text(angle=90, hjust=1, vjust=0.5),
+# My color map using tableau colors
+# http://tableaufriction.blogspot.com/2012/11/finally-you-can-use-tableau-data-colors.html
+getColorMap <- function() {
+    colors <- c("yellow", "blue", "orange", "green", "red", "purple", "brown",
+                "light grey", "light red", "green-orange", "olive",
+                "light blue", "light green")
+    colorMap <- table(colors)
+    colorMap["yellow"]       <- "#ffd94a"
+    colorMap["blue"]         <- "#1f77b4"
+    colorMap["orange"]       <- "#ff7f0e"
+    colorMap["green"]        <- "#2ca02c"
+    colorMap["red"]          <- "#d62728"
+    colorMap["light grey"]   <- "#c7c7c7"
+    colorMap["purple"]       <- "#9467bd"
+    colorMap["brown"]        <- "#8c564b"
+    colorMap["light red"]    <- "#ff9896"
+    colorMap["green-orange"] <- "#86b4a9"
+    colorMap["olive"]        <- "#bcbd22"
+    colorMap["light blue"]   <- "#aec7e8"
+    colorMap["light green"]  <- "#98df8a"
+    return(colorMap)
+}
+
+# Facets theme
+theme.facets <- theme(axis.text=element_text(colour="black", size=12),
                       axis.title=element_text(face="bold", size=15),
                       panel.grid.major=element_blank(),
                       panel.border=element_rect(colour="black", fill=NA),
@@ -13,6 +39,18 @@ facets.theme <- theme(axis.text=element_text(colour="black", size=12),
                       strip.background=element_rect(colour="white", fill=NA, size=3),
                       legend.key=element_rect(fill=NA),
                       plot.title=element_text(face="bold"))
+
+# Facets theme with x axis text rotated 90 degrees
+theme.facets.x90 <- theme(axis.text=element_text(colour="black", size=12),
+                          axis.text.x=element_text(angle=90, hjust=1, vjust=0.5),
+                          axis.title=element_text(face="bold", size=15),
+                          panel.grid.major=element_blank(),
+                          panel.border=element_rect(colour="black", fill=NA),
+                          panel.margin=unit(3, "mm"),
+                          strip.text=element_text(face="bold", size=10, vjust=0),
+                          strip.background=element_rect(colour="white", fill=NA, size=3),
+                          legend.key=element_rect(fill=NA),
+                          plot.title=element_text(face="bold"))
 
 
 # summarySE
