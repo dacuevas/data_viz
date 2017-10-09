@@ -9,7 +9,8 @@ source("~/Projects/data_viz/r/lib/dc_libs.R")
 getColorMap <- function() {
     colors <- c("yellow", "blue", "orange", "green", "red", "purple", "brown",
                 "light grey", "light red", "green-orange", "olive",
-                "light blue", "light green")
+                "light blue", "light green", "grey", "pink", "orange-yellow",
+                "dark blue", "aqua", "dark green", "black")
     colorMap <- table(colors)
     colorMap["yellow"]       <- "#ffd94a"
     colorMap["blue"]         <- "#1f77b4"
@@ -24,6 +25,14 @@ getColorMap <- function() {
     colorMap["olive"]        <- "#bcbd22"
     colorMap["light blue"]   <- "#aec7e8"
     colorMap["light green"]  <- "#98df8a"
+    colorMap["grey"]  <- "#c7c7c7"
+    colorMap["pink"]  <- "#e377c2"
+    colorMap["orange-yellow"]  <- "#ffc156"
+    colorMap["dark blue"]  <- "#000bca"
+    colorMap["aqua"]  <- "#17becf"
+    colorMap["dark green"]  <- "#006400"
+    colorMap["dark red"]  <- "#8b0000"
+    colorMap["black"]  <- "#000000"
     return(colorMap)
 }
 
